@@ -1,0 +1,135 @@
+
+#include <iostream>
+using namespace std;
+
+struct ListNode {
+    int val;
+    ListNode* next;
+
+    ListNode(int x) {
+        val = x;
+        next = nullptr;
+    }
+};
+
+// Додавання вузла в кінець списку
+void appendNode(ListNode*& head, ListNode*& tail, ListNode* node) {
+    node->next = nullptr;
+
+    if (head == nullptr) {
+        head = node;
+        tail = node;
+        return;
+    }
+
+    tail->next = node;
+    tail = node;
+}
+
+// Рекурсивне розділення списку
+void partitionRecursive(
+    ListNode* current,
+    int x,
+    ListNode*& smallHead,
+    ListNode*& smallTail,
+    ListNode*& largeHead,
+    ListNode*& largeTail
+) {
+    if (current == nullptr) {
+        return;
+    }
+
+    ListNode* next = current->next;
+
+    if (current->val < x) {
+        appendNode(smallHead, smallTail, current);
+    } else {
+        appendNode(largeHead, largeTail, current);
+    }
+
+    partitionRecursive(
+        next, x,
+        smallHead, smallTail,
+        largeHead, largeTail
+    );
+}
+
+// Основна функція
+ListNode* partition(ListNode* head, int x) {
+    ListNode* smallHead = nullptr;
+    ListNode* smallTail = nullptr;
+    ListNode* largeHead = nullptr;
+    ListNode* largeTail = nullptr;
+
+    partitionRecursive(
+        head, x,
+        smallHead, smallTail,
+        largeHead, largeTail
+    );
+
+    if (smallHead == nullptr) {
+        return largeHead;
+    }
+
+    smallTail->next = largeHead;
+
+    return smallHead;
+}
+
+// Створення списку
+ListNode* createList(int arr[], int index, int size) {
+    if (index == size) {
+        return nullptr;
+    }
+
+    ListNode* node = new ListNode(arr[index]);
+    node->next = createList(arr, index + 1, size);
+
+    return node;
+}
+
+// Виведення списку
+void printList(ListNode* head) {
+    if (head == nullptr) {
+        cout << endl;
+        return;
+    }
+
+    cout << head->val << " ";
+    printList(head->next);
+}
+
+// Очищення пам'яті
+void deleteList(ListNode* head) {
+    if (head == nullptr) {
+        return;
+    }
+
+    deleteList(head->next);
+    delete head;
+}
+
+// Перевірка прикладу
+void runExample(int arr[], int size, int x) {
+    ListNode* head = createList(arr, 0, size);
+
+    head = partition(head, x);
+
+    cout << "Result: ";
+    printList(head);
+
+    deleteList(head);
+}
+
+int main() {
+    int arr1[] = {1, 4, 3, 2, 5, 2};
+    int arr2[] = {2, 1};
+
+    cout << "Example 1: ";
+    runExample(arr1, 6, 3);
+
+    cout << "Example 2: ";
+    runExample(arr2, 2, 2);
+
+    return 0;
+}
